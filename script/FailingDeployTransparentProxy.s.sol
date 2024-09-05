@@ -7,7 +7,7 @@ import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
 // Expected to fail given `Upgrades.deployTransparentProxy` makes use deploys the implementation contract from bytecode before our compiler is aware of the bytecode resulting in `ERC1967InvalidImplementation`. 
 // To see the error message, run `cast 4byte 0x4c9c8ce3`.  
-contract DeployTransparentProxy is Script {
+contract FailingDeployTransparentProxy is Script {
 
     function run() public {
         vm.startBroadcast();
