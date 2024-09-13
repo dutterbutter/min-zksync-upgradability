@@ -1,66 +1,95 @@
-## Foundry
+# min-zksync-upgradability
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository demonstrates a minimum setup for zkSync contract upgradability using [**foundry-zksync**](https://github.com/matter-labs/foundry-zksync). It includes scripts for deploying and upgrading contracts using the UUPS, Beacon, and Transparent proxy patterns on zkSync.
 
-Foundry consists of:
+## Prerequisites
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Ensure that you have **foundry-zksync** installed. Follow the installation instructions in the [Foundry-zksync repository](https://github.com/matter-labs/foundry-zksync).
 
-## Documentation
+## Getting Started
 
-https://book.getfoundry.sh/
+To get started with this repository, follow the steps below:
 
-## Usage
+### 1. Clone the repository
 
-### Build
-
-```shell
-$ forge build
+```bash
+git clone git@github.com:dutterbutter/min-zksync-upgradability.git
 ```
 
-### Test
+Navigate into the project directory:
 
-```shell
-$ forge test
+```bash
+cd min-zksync-upgradability
 ```
 
-### Format
+### 2. Install Dependencies
 
-```shell
-$ forge fmt
+Install the necessary dependencies using `forge`:
+
+```bash
+forge install
 ```
 
-### Gas Snapshots
+### 3. Build the Project for zkSync
 
-```shell
-$ forge snapshot
+To build the project for zkSync, run:
+
+```bash
+forge build --zksync
 ```
 
-### Anvil
+### 4. Private Key Setup with Foundry Keystore
 
-```shell
-$ anvil
+Follow these steps to securely store your wallet's private key to use it in Foundry projects:
+
+- **Extract Your Private Key**: If you're using a local zkSync Era node, use a private key from the available rich accounts. Otherwise, find your personal wallet's private key (e.g., from MetaMask).
+
+- **Create a Foundry Keystore**: Create a keystore and import your private key by running:
+
+    ```bash
+    cast wallet import myKeystore --interactive
+    ```
+
+    When prompted, enter your private key, provide a password, and copy the returned address (keystore address).
+
+    > Note: The name `myKeystore` is arbitrary and can be changed. If you decide to use another name, ensure consistency when referencing it in commands.
+
+- **Using the Keystore**: When running commands requiring a private key (e.g., `forge create` or `cast send`), use:
+
+    ```bash
+    --account myKeystore --sender <KEYSTORE_ADDRESS>
+    ```
+
+    You'll need to enter the keystore password during execution.
+
+### 5. Running the Upgrade Scripts
+
+The repository provides scripts to deploy and upgrade contracts using various upgradeability patterns. Execute these scripts using `forge script`:
+
+#### Deploy and Upgrade UUPS Proxy
+
+```bash
+forge script script/DeployAndUpgradeUUPSProxy.s.sol:DeployAndUpgradeUUPSProxy --slow --account <YOUR-ACCOUNT-KEYSTORE> --sender <YOUR-SENDER-ADDRESS> --rpc-url ZKsyncSepoliaTestnet --broadcast --zksync -vvvv
 ```
 
-### Deploy
+#### Deploy and Upgrade Transparent Proxy
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```bash
+forge script script/DeployAndUpgradeTransparentProxy.s.sol:DeployAndUpgradeTransparentProxy --slow --account <YOUR-ACCOUNT-KEYSTORE> --sender <YOUR-SENDER-ADDRESS> --rpc-url ZKsyncSepoliaTestnet --broadcast --zksync -vvvv
 ```
 
-### Cast
+#### Deploy and Upgrade Beacon Proxy
 
-```shell
-$ cast <subcommand>
+```bash
+forge script script/DeployAndUpgradeBeaconProxy.s.sol:DeployAndUpgradeBeaconProxy --slow --account <YOUR-ACCOUNT-KEYSTORE> --sender <YOUR-SENDER-ADDRESS> --rpc-url ZKsyncSepoliaTestnet --broadcast --zksync -vvvv
 ```
 
-### Help
+### 6. Explanation of Flags
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+- **`--slow`**: This flag sends transactions one at a time, ensuring that they are executed in order, which is critical for upgradable contracts on ZKsync.
+  
+- **`--zksync`**: Compiles the sources for `zksolc` and automatically switches the execution to the ZKsync context, ensuring compatibility with zkSync Era.
+
+### 7. Broadcasting Transactions on zkSync
+
+To execute the scripts and broadcast transactions correctly on ZKsync, make sure to use the **--slow** and **--zksync** flags to ensure that transactions are processed sequentially and compiled for the ZKsync network.
